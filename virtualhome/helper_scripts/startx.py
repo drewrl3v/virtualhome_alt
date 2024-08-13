@@ -1,5 +1,3 @@
-# Adapted from https://github.com/askforalfred
-import pdb
 import subprocess
 import shlex
 import re
@@ -63,9 +61,26 @@ EndSection
     print(output)
     return output
 
+def stopx(display):
+    """Stop X server on the specified display."""
+    try:
+        # Find the PID of the Xorg process running on the specified display
+        output = subprocess.check_output(['ps', 'aux']).decode()
+        for line in output.splitlines():
+            if f"Xorg :{display}" in line:
+                pid = int(line.split()[1])
+                print(f"Stopping X server on display :{display} (PID {pid})")
+                subprocess.call(['kill', '-9', str(pid)])
+                break
+    except Exception as e:
+        print(f"Failed to stop X server on display :{display}: {e}")
+
 def startx(display, gpu_id):
     if platform.system() != 'Linux':
         raise Exception("Can only run startx on linux")
+
+    # Stop the X server if it's already running on this display
+    stopx(display)
 
     devices = []
     records = pci_records()
@@ -80,23 +95,26 @@ def startx(display, gpu_id):
     
     if len(gpu_id) > 0:
         devices = [devices[gpid] for gpid in gpu_id]
+    
     try:
-        fd, path = tempfile.mkstemp()
-        with open(path, "w") as f:
-            f.write(generate_xorg_conf(devices))
-        command = shlex.split("Xorg -noreset +extension GLX +extension RANDR +extension RENDER -config %s :%s" % (path, display))
-        subprocess.call(command)
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            xorg_conf_path = f.name
+            f.write(generate_xorg_conf(devices).encode('utf-8'))
+        
+        command = shlex.split(f"Xorg -noreset +extension GLX +extension RANDR +extension RENDER -config {xorg_conf_path} :{display}")
+        result = subprocess.call(command)
+        if result != 0:
+            raise RuntimeError(f"Xorg command failed with return code {result}")
     finally:
-        os.close(fd)
-        os.unlink(path)
-
+        os.unlink(xorg_conf_path)
 
 if __name__ == '__main__':
-    display = 0
+    display = 1  # Change to the display you want to manage
     gpu_id = []
     if len(sys.argv) > 1:
         display = int(sys.argv[1])
         if len(sys.argv) > 2:
             gpu_id = [int(x) for x in sys.argv[2].split(',')]
-    print("Starting X on DISPLAY=:{} with gpu".format(display, gpu_id))
-    startx(display,  gpu_id)
+    
+    print(f"Restarting X on DISPLAY=:{display} with gpu {gpu_id}")
+    startx(display, gpu_id)
