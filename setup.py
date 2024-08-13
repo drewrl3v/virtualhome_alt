@@ -10,7 +10,7 @@ with open("./virtualhome/requirements.txt", "r", encoding="utf-8") as f:
 # This is an alternative repo to the standard virtualhome repo created by Xavier Puig
 setuptools.setup(
     name="virtualhome",
-    version="2.3.0_alt",
+    version="0.0.1",
     author="Andrew Lizarraga", # Original Author: Xavier Puig
     author_email="drewrl3v@gmail.com",
     description="Python API to communicate with the VirtualHome environment",

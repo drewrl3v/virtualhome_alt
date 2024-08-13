@@ -13,5 +13,20 @@
 
 2. pip install virtualhome
 
-    pip install .
+    python3 -m pip install -e .
 
+# Running an X server
+
+1. sudo python3 virtualhome/helper_scripts/startx.py 1
+2. python3 examples/test.py
+    
+
+# Killing A Rogue Procees
+
+1. If your linux binary keeps persisting and spawning:
+
+    ps aux | grep linux_exec.v2.2.4.x86_64
+
+    kill -9 PID
+
+    
