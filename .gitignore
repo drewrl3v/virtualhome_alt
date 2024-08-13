@@ -166,8 +166,8 @@ fabric.properties
 .idea/httpRequests
 
 # Project-specific stuff
-test*/
-test*.py
+#test*/
+#test*.py
 data/*
 .vscode/
 
