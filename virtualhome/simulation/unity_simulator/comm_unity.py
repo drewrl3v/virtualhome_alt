@@ -17,6 +17,7 @@ from . import communication
 
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from collections.abc import Iterable
 #from requests.packages.urllib3.util.retry import Retry
 
 class UnityCommunication(object):
@@ -322,7 +323,7 @@ class UnityCommunication(object):
         :param list camera_indexes: the list of cameras to return, can go from 0 to `camera_count-1`
         :return: pair success (bool), cam_data: (list): for every camera, the matrices with the camera parameters
         """
-        if not isinstance(camera_indexes, collections.Iterable):
+        if not isinstance(camera_indexes, Iterable):
             camera_indexes = [camera_indexes]
         response = self.post_command({'id': str(time.time()), 'action': 'camera_data',
                                       'intParams': camera_indexes})
@@ -339,7 +340,7 @@ class UnityCommunication(object):
 
         :return: pair success (bool), images: (list) a list of images according to the camera rendering mode
         """
-        if not isinstance(camera_indexes, collections.Iterable):
+        if not isinstance(camera_indexes, Iterable):
             camera_indexes = [camera_indexes]
 
         params = {'mode': mode, 'image_width': image_width, 'image_height': image_height}
